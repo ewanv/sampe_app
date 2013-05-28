@@ -85,7 +85,10 @@ describe User do
 	end
 
 	describe "when password is not present" do
-		before { @user.password = @user.password_confirmation = " " }
+		before do
+			@user = User.new(name: "Michael Hartl", email: "mhartl@example.com",
+                     password: " ", password_confirmation: " ")
+		end
 		it { should_not be_valid }
 	end
 
@@ -95,13 +98,16 @@ describe User do
 	end
 
 	describe "when password confirmation is nil" do
-		before { @user.password_confirmation = nil }
+		before do
+			@user = User.new(name: "Michael Hartl", email: "mhartl@example.com",
+                     password: "foobar", password_confirmation: nil)
+		end
 		it { should_not be_valid }
 	end
 	
 	describe "return value of authenticate method" do
 		before { @user.save }
-		let (:found_user) { User.find_by_email @user.email }
+		let (:found_user) { User.find_by(email: @user.email) }
 
 		describe "with valid password" do
 			it { should == found_user.authenticate(@user.password) }
