@@ -6,8 +6,25 @@ RSpec::Matchers.define :have_error_message do |message|
   end
 end
 
+RSpec::Matchers.define :have_signed_user_in do |user_name, message|
+  match do |page|
+	expect(page).to have_title(user_name) 
+	expect(page).to have_selector('div.alert.alert-success', text: message) 
+	expect(page).to have_link('Sign out', href: signout_path) 
+  end
+end
+
 def valid_signin(user)
   fill_in "Email",    with: user.email
   fill_in "Password", with: user.password
   click_button "Sign in"
+end
+
+def sign_in(user)
+  visit signin_path
+  fill_in "Email",    with: user.email
+  fill_in "Password", with: user.password
+  click_button "Sign in"
+  # Sign in when not using Capybara as well.
+  cookies[:remember_token] = user.remember_token
 end
