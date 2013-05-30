@@ -28,7 +28,7 @@ describe "User pages" do
 				before { click_button submit }
 
 				it { should have_title full_title('Sign Up') }
-				it { should have_content('error') }
+				it { should have_error_message('error') }
 				it { should have_content('blank') }
 				before do
 					fill_in "Name",         with: "Example User"
