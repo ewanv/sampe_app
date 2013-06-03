@@ -1,13 +1,13 @@
 <%= form_for(@micropost) do |f| %>
 	<%= render 'shared/error_messages', object: f.object %>
 	<div class="field">
-		<%= f.text_area :content, placeholder: "Compose new micropost...", id: "countdownTextArea" %>
+		<%= f.text_area :content, placeholder: "Compose new micropost..." %>
 		<p class="timestamp" id="counter">Characters left: 140</p>
 	</div>
 	
 	<%= f.submit "Post", class: "btn btn-large btn-primary" %>
 	<script type="text/javascript">
-		$('#countdownTextArea').on("propertychange input textInput", function () {
+		$('#micropost_content').on("propertychange input textInput", function () {
     		var left = 140 - $(this).val().length;
     		if (left < 0) {
         		left = 0;
