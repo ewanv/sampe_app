@@ -36,7 +36,26 @@ describe "MicropostPages" do
 			before { visit root_path }
 			
 			it "should delete a micropost" do
-				 expect { click_link "delete" }.to change(Micropost, :count).by(-1) 
+				expect { click_link "delete" }.to change(Micropost, :count).by(-1) 
+			end
+		end
+	end
+
+	describe "pagination" do
+		before(:each) do
+			50.times { FactoryGirl.create(:micropost, user: user) } 
+			visit root_path 
+		end
+		after(:all) do
+			Micropost.delete_all 
+			User.delete_all
+		end
+
+		it { should have_selector('div.pagination') }
+
+		it "should have each post" do
+			Micropost.all.page(1) do |post|
+				expect(page).to have_selector('li', text: post.content)
 			end
 		end
 	end

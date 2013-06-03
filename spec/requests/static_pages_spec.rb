@@ -19,10 +19,10 @@ describe "StaticPages" do
     it { should_not have_title '| Home' }
 
     describe "for signed-in users" do
-      let(:user) { FactoryGirl.create(:user) }
+      let!(:user) { FactoryGirl.create(:user, email: "foo@bar.com") }
+      let!(:post) { FactoryGirl.create(:micropost, user: user, content: "Bar") }
       before do
         FactoryGirl.create(:micropost, user: user, content: "Foo") 
-        FactoryGirl.create(:micropost, user: user, content: "Bar")
         sign_in user 
         visit root_path
       end
@@ -31,6 +31,13 @@ describe "StaticPages" do
         user.feed.each do |item|
           expect(page).to have_selector("li##{item.id}", text: item.content)
         end
+      end
+
+      it "should display and pluralise properly" do
+        expect(page).to have_content("2 microposts")
+        post.destroy
+        visit root_path
+        expect(page).to have_content("1 micropost")
       end
     end
   end
