@@ -210,11 +210,34 @@ describe User do
 			subject { other_user }
 			its(:followers) { should include(@user) }
 		end
+
 		describe "and unfollowing" do
 			before { @user.unfollow!(other_user) }
 
 			it { should_not be_following(other_user) }
 			its(:followed_users) { should_not include(other_user) }
+		end
+
+		describe "destroying following users" do
+			it "should destroy associated relationships" do
+				relationships = @user.relationships.to_a
+				@user.destroy
+				expect(relationships).not_to be_empty
+				relationships.each do |relationship|
+					expect(Relationship.where(id: relationship.id)).to be_empty
+				end
+			end
+		end
+
+		describe "destroying followed users" do
+			it "should destroy associated relationships" do
+				relationships = other_user.reverse_relationships.to_a
+				other_user.destroy
+				expect(relationships).not_to be_empty
+				relationships.each do |relationship|
+					expect(Relationship.where(id: relationship.id)).to be_empty
+				end
+			end
 		end
 	end
 end

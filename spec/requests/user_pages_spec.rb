@@ -95,6 +95,7 @@ describe "User pages" do
 					it { should have_xpath("//input[@value='Unfollow']") }
 				end
 			end
+
 			describe "unfollowing a user" do
 				before do
 					user.follow!(other_user)
@@ -117,6 +118,16 @@ describe "User pages" do
 					before { click_button "Unfollow" }
 					it { should have_xpath("//input[@value='Follow']") }
 				end
+			end
+
+			describe "follower/following counts" do
+				before do
+					other_user.follow!(user)
+					visit user_path(user)
+				end
+
+				it { should have_link("0 following", href: following_user_path(user)) }
+				it { should have_link("1 followers", href: followers_user_path(user)) }
 			end
 		end
 	end
