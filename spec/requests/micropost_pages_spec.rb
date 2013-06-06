@@ -59,4 +59,43 @@ describe "MicropostPages" do
 			end
 		end
 	end
+
+
+	describe "replies" do
+		let(:other_user) { FactoryGirl.create(:user) }
+
+		describe "single reply" do
+			let!(:reply) { FactoryGirl.create(:micropost, user: user,
+				content:("@#{other_user.username} Aye bru!")) }
+
+			before do
+				sign_in other_user
+				visit root_path
+			end
+			it { should have_content(reply.content) }
+		end
+
+		describe "multiple replies" do
+			let(:third_user) { FactoryGirl.create(:user) }
+			let!(:reply) { FactoryGirl.create(:micropost, user: user,
+				content:("@#{other_user.username} @#{third_user.username} Aye bru!")) }
+			describe "first user" do
+				before do
+					sign_in other_user
+					visit root_path
+				end
+				it { should have_content(reply.content) }
+				
+			end
+
+			describe "second user" do
+				before do
+					sign_in third_user
+					visit root_path
+				end
+				it { should have_content(reply.content) }
+				
+			end
+		end
+	end
 end

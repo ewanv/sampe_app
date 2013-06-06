@@ -11,13 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130603051051) do
+ActiveRecord::Schema.define(version: 20130606021316) do
 
   create_table "microposts", force: true do |t|
     t.string   "content"
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "in_reply_to_id"
   end
 
   add_index "microposts", ["user_id", "created_at"], name: "index_microposts_on_user_id_and_created_at"
@@ -33,6 +34,15 @@ ActiveRecord::Schema.define(version: 20130603051051) do
   add_index "relationships", ["follower_id", "followed_id"], name: "index_relationships_on_follower_id_and_followed_id", unique: true
   add_index "relationships", ["follower_id"], name: "index_relationships_on_follower_id"
 
+  create_table "replies", force: true do |t|
+    t.integer "micropost_id"
+    t.integer "in_reply_to_id"
+  end
+
+  add_index "replies", ["in_reply_to_id"], name: "index_replies_on_in_reply_to_id"
+  add_index "replies", ["micropost_id", "in_reply_to_id"], name: "index_replies_on_micropost_id_and_in_reply_to_id", unique: true
+  add_index "replies", ["micropost_id"], name: "index_replies_on_micropost_id"
+
   create_table "users", force: true do |t|
     t.string   "name"
     t.string   "email"
@@ -41,9 +51,11 @@ ActiveRecord::Schema.define(version: 20130603051051) do
     t.string   "password_digest"
     t.string   "remember_token"
     t.boolean  "admin",           default: false
+    t.string   "username"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true
   add_index "users", ["remember_token"], name: "index_users_on_remember_token"
+  add_index "users", ["username"], name: "index_users_on_username", unique: true
 
 end
