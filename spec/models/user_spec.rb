@@ -196,25 +196,33 @@ describe User do
 
 			describe "status" do
 				let(:unfollowed_post) do
-					FactoryGirl.create(:micropost, user: FactoryGirl.create(:user)) 
+					FactoryGirl.create(:micropost, user: FactoryGirl.create(:user), 
+						created_at: 3.hours.ago) 
 				end
 				let(:followed_user) { FactoryGirl.create(:user) }
 				let!(:reply) { FactoryGirl.create(:micropost, user: FactoryGirl.create(:user),
-					content: "@#{@user.username} Aye bru!") }
+					content: "@#{@user.username} Aye bru!", created_at: 2.hours.ago) }
 
 				before do
 					@user.follow! (followed_user)
-					3.times { followed_user.microposts.create!(content: "Lorem ipsum") }
+					3.times { followed_user.microposts.create!(content: "Lorem ipsum",
+					created_at: 4.days.ago) }
 				end
 
 				its(:feed) { should include(older_micropost) }
 				its(:feed) { should include(newer_micropost) }
 				its(:feed) { should include(reply) }
 				its(:feed) { should_not include(unfollowed_post) }
+
 				its(:feed) do
 					followed_user.microposts.each do |micropost|
 						should include(micropost)
 					end
+				end
+				let(:feed) { @user.feed }
+				it "should have a feed that's in the right order" do
+					expect(feed).to eq [newer_micropost, reply, older_micropost
+						] + followed_user.microposts.to_a
 				end
 			end
 		end

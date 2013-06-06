@@ -38,7 +38,10 @@ class User < ActiveRecord::Base
 		format: { with: VALID_USERNAME_REGEX }
 
 	def feed
-		Micropost.from_users_followed_by_and_including_replies_to(self)
+		feed = Micropost.from_users_followed_by(self).pluck(:id)
+		feed += Micropost.including_replies_to(self).pluck(:id)
+		feed += Micropost.including_replies_to_users_followed_by(self).pluck(:id)
+		Micropost.where('id in (?)',feed)
 	end
 
 	def following?(other_user)

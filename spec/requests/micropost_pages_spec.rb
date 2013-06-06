@@ -64,22 +64,39 @@ describe "MicropostPages" do
 	describe "replies" do
 		let(:other_user) { FactoryGirl.create(:user) }
 
-		describe "single reply" do
+		describe "with a single recipient," do
+			let!(:oldest_post) { other_user.microposts.create!(content: "Lorem ipsum", 
+				created_at:2.days.ago) }
 			let!(:reply) { FactoryGirl.create(:micropost, user: user,
-				content:("@#{other_user.username} Aye bru!")) }
+				content:("@#{other_user.username} Aye bru!"), created_at:1.day.ago) }
+			let!(:newest_post) { other_user.microposts.create!(content: "Lorem ipsum",
+				created_at:1.hour.ago) }
 
-			before do
-				sign_in other_user
-				visit root_path
+			describe "recipient's feed" do
+				before do
+					sign_in other_user
+					visit root_path
+				end
+				it { should have_content(reply.content) }
 			end
-			it { should have_content(reply.content) }
+
+			describe "recipient's follower's feed" do
+				let(:follower) { FactoryGirl.create(:user) }
+				before do
+					follower.follow!(other_user)
+					sign_in follower
+					visit root_path
+				end
+
+				it { should have_content(reply.content) }
+			end
 		end
 
-		describe "multiple replies" do
+		describe "with multiple recipients" do
 			let(:third_user) { FactoryGirl.create(:user) }
 			let!(:reply) { FactoryGirl.create(:micropost, user: user,
 				content:("@#{other_user.username} @#{third_user.username} Aye bru!")) }
-			describe "first user" do
+			describe "first user's feed" do
 				before do
 					sign_in other_user
 					visit root_path
@@ -88,13 +105,12 @@ describe "MicropostPages" do
 				
 			end
 
-			describe "second user" do
+			describe "second user's feed" do
 				before do
 					sign_in third_user
 					visit root_path
 				end
 				it { should have_content(reply.content) }
-				
 			end
 		end
 	end
