@@ -35,10 +35,17 @@ describe Micropost do
 	describe "with reply tag" do
 		let(:other_user) { FactoryGirl.create(:user) }
 		before do
-			@micropost.content = "@#{other_user.username} Reply!"
-			@micropost.save
+			@micropost = user.microposts.create!(content: "@#{other_user.username} Reply!")
 		end
 		it { should be_reply }
-		specify { expect { @micropost.in_reply_to_users.exists?(other_user)}.to be_true }
+		its(:in_reply_to_users) { should include other_user }
+	end
+
+	describe "with invalid reply tag" do
+		before do
+			@micropost = user.microposts.create!(content: "@invalid_username Reply!")
+		end
+		it { should_not be_reply }
+		its(:in_reply_to_users) { should be_empty }
 	end
 end
